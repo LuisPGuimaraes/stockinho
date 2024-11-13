@@ -1,0 +1,45 @@
+################### FIRST STAGE - COMPILE and BUILD
+FROM node:20.18.0-alpine AS build
+
+ARG APP_VERSION
+
+ENV APP_VERSION $APP_VERSION
+
+ENV BUILD_DIR /build-dir
+
+WORKDIR $BUILD_DIR
+
+COPY package.json ./
+COPY package-lock.json ./
+
+RUN npm install
+
+COPY . $BUILD_DIR
+RUN npm run build
+
+#################### SECOND STAGE - RUN
+FROM node:20.18.0-alpine
+
+ARG APP_ENV=prod
+ARG APP_VERSION
+
+ENV NODE_ENV $APP_ENV
+ENV APP_VERSION $APP_VERSION
+
+
+ENV BUILD_DIR /build-dir
+ENV APP_DIR ./app
+COPY --from=build $BUILD_DIR/dist $APP_DIR
+
+WORKDIR $APP_DIR
+
+# In case you need snappy (kafka compression), uncomment the following lines to install python (dependency)
+#
+# RUN apk add --no-cache make gcc g++ python && \
+#  npm install --production --silent && \
+#  apk del make gcc g++ python
+
+RUN npm install --production --silent
+
+CMD ["npm", "run", "start:prod"]
+EXPOSE 3400
