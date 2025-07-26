@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { EachMessagePayload } from 'kafkajs';
+import { OfferService } from 'src/@core/domain/offer.service';
 
 const { kafka } = require('./kafka-client'); // Importa o client existente
 
@@ -11,6 +12,8 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     sessionTimeout: 10000,
   });
 
+  constructor(private offerService: OfferService) {}
+
   private async consumeMessage({ topic, partition, message }: EachMessagePayload): Promise<void> {
     console.log('Consuming My Message:');
     console.log({
@@ -19,6 +22,14 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       partition,
       offset: message.offset,
     });
+    try {
+      const parsedValue = JSON.parse(message.value?.toString() || '{}');
+      const { discountPercentage, endDate } = parsedValue;
+      this.offerService.create(discountPercentage, endDate);
+    } catch (error) {
+      console.error('Error processing message:', error);
+    }
+
   }
 
   public async start(): Promise<void> {
