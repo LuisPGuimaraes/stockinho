@@ -23,8 +23,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 	
   public async start(): Promise<void> {
 		
-		const promises =
-			this.listeners.map(async (listener: IWorkerListener) => {
+		this.listeners.map(async (listener: IWorkerListener) => {
 			const { name, consumerGroup } = topics[listener.constructor.name] || {};
 
 			this.consumer = kafka.consumer({
@@ -51,9 +50,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 				await this.consumer.disconnect();
 			}
 		});
-
-
-  }
+	}
 
   public async stop(): Promise<void> {
     try {
