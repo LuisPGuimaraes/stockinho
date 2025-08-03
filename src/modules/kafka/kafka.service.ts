@@ -1,53 +1,57 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import { EachMessagePayload } from 'kafkajs';
 import { OfferService } from 'src/@core/domain/offer.service';
+import { Environment } from 'src/@core/infra/enviroment';
+import { WORKER_LISTENERS } from 'src/@core/infra/tokens';
+import { IWorkerListener } from 'src/application/IWorkerListener';
+import OfferCreateListener from 'src/application/offerCreateListener';
 
-const { kafka } = require('./kafka-client'); // Importa o client existente
+const { kafka } = require('./kafka-client');
+const { topics } = Environment.configuration.kafka
+
+const eventListeners = [
+  OfferCreateListener,
+]
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
-  private consumer = kafka.consumer({
-    groupId: 'sample-consumer-group',
-    heartbeatInterval: 3000,
-    sessionTimeout: 10000,
-  });
+	constructor(@Inject(WORKER_LISTENERS) private readonly listeners: IWorkerListener[]) {}
 
-  constructor(private offerService: OfferService) {}
+  private consumer: any;
 
-  private async consumeMessage({ topic, partition, message }: EachMessagePayload): Promise<void> {
-    console.log('Consuming My Message:');
-    console.log({
-      value: message.value?.toString(),
-      topic,
-      partition,
-      offset: message.offset,
-    });
-    try {
-      const parsedValue = JSON.parse(message.value?.toString() || '{}');
-      const { discountPercentage, endDate } = parsedValue;
-      this.offerService.create(discountPercentage, endDate);
-    } catch (error) {
-      console.error('Error processing message:', error);
-    }
-
-  }
-
+	
   public async start(): Promise<void> {
-    try {
-      await this.consumer.connect();
-      console.log('Kafka Consumer connected!');
+		
+		const promises =
+			this.listeners.map(async (listener: IWorkerListener) => {
+			const { nameTopic, eventListener, consumerGroup } = topics[listener.constructor.name] || {};
 
-      await this.consumer.subscribe({ topic: 'sample-topic', fromBeginning: true });
-      console.log('Subscribed to topic: sample-topic');
+			this.consumer = kafka.consumer({
+				groupId: consumerGroup,
+				heartbeatInterval: 3000,
+				sessionTimeout: 10000,
+			});
+			await this.consumer.connect();
+			console.log(`Kafka Consumer connected for ${eventListener}!`);
 
-      await this.consumer.run({
-        autoCommit: true,
-        eachMessage: this.consumeMessage.bind(this),
-      });
-    } catch (error) {
-      console.error('Error starting Kafka consumer:', error);
-      await this.consumer.disconnect();
-    }
+			try {
+				await this.consumer.subscribe({ topic: nameTopic, fromBeginning: true });
+				console.log(`Subscribed to topic: ${nameTopic} `);
+
+				await this.consumer.run({
+					autoCommit: true,
+					eachMessage: async (payload: EachMessagePayload) => {
+							await listener.onMessage(payload.message);
+					}
+
+				});
+			} catch (error) {
+				console.error('Error starting Kafka consumer:', error);
+				await this.consumer.disconnect();
+			}
+		});
+
+
   }
 
   public async stop(): Promise<void> {
