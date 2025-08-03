@@ -10,10 +10,6 @@ import OfferCreateListener from 'src/application/offerCreateListener';
 const { kafka } = require('./kafka-client');
 const { topics } = Environment.configuration.kafka
 
-const eventListeners = [
-  OfferCreateListener,
-]
-
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
 	constructor(@Inject(WORKER_LISTENERS) private readonly listeners: IWorkerListener[]) {}
