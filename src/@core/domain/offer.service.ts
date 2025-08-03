@@ -5,8 +5,8 @@ export class OfferService {
 
   constructor(private offerRepository: OfferRepository) {}
 
-  create(discountPercentage: number | null, endDate: Date): Offer {
-    const offer = new Offer(discountPercentage, new Date(), endDate, new Date());
+  create(discountPercentage: number | null, startDate: Date, endDate: Date): Offer {
+    const offer = new Offer(discountPercentage, startDate, endDate, new Date());
     this.offerRepository.insert(offer);
 
     return offer;
