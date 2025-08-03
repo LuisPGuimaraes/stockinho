@@ -16,6 +16,6 @@ import { WORKER_LISTENERS } from 'src/@core/infra/tokens';
     }
 
   ],
-  exports: [OfferCreateListener],
+  exports: [OfferCreateListener, WORKER_LISTENERS],
 })
 export class WorkerModule {}

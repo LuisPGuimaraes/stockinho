@@ -1,4 +1,4 @@
-export const config = {
+module.exports = {
 	database: {
 		type: 'mysql', // ou 'postgres'
 		host: process.env.DB_HOST,
@@ -9,12 +9,11 @@ export const config = {
 		poolSize: Number(process.env.DB_POOL_SIZE || 10),
 	},
 	kafka: {
-		topics: [
-			{
+		topics: {
+			'OfferCreateListener': {
 				name: 'command.offers.create',
-				eventListener: 'OfferCreateListener',
 				consumerGroup: 'offer-create-group',
 			}
-		]
+		}
 	}
 }

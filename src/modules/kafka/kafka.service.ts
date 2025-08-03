@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
+import e from 'express';
 import { EachMessagePayload } from 'kafkajs';
 import { OfferService } from 'src/@core/domain/offer.service';
 import { Environment } from 'src/@core/infra/enviroment';
@@ -24,7 +25,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 		
 		const promises =
 			this.listeners.map(async (listener: IWorkerListener) => {
-			const { nameTopic, eventListener, consumerGroup } = topics[listener.constructor.name] || {};
+			const { name, consumerGroup } = topics[listener.constructor.name] || {};
 
 			this.consumer = kafka.consumer({
 				groupId: consumerGroup,
@@ -32,11 +33,11 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 				sessionTimeout: 10000,
 			});
 			await this.consumer.connect();
-			console.log(`Kafka Consumer connected for ${eventListener}!`);
+			console.log(`Kafka Consumer connected for ${name}!`);
 
 			try {
-				await this.consumer.subscribe({ topic: nameTopic, fromBeginning: true });
-				console.log(`Subscribed to topic: ${nameTopic} `);
+				await this.consumer.subscribe({ topic: name, fromBeginning: true });
+				console.log(`Subscribed to topic: ${name} `);
 
 				await this.consumer.run({
 					autoCommit: true,
