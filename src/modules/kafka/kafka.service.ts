@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import e from 'express';
 import { EachMessagePayload } from 'kafkajs';
-import { OfferService } from 'src/@core/domain/offer.service';
+import { OfferService } from 'src/@core/domain/offerService';
 import { Environment } from 'src/@core/infra/enviroment';
 import { WORKER_LISTENERS } from 'src/@core/infra/tokens';
 import { IWorkerListener } from 'src/application/IWorkerListener';

@@ -1,4 +1,4 @@
-import { Offer } from "src/@core/domain/offer.entity";
+import { Offer } from "src/@core/domain/offerEntity";
 
 describe ('offer test', () => {
 	let today: Date;

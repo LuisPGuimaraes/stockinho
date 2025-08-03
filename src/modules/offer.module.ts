@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule, getDataSourceToken } from '@nestjs/typeorm';
-import { OfferService } from 'src/@core/domain/offer.service';
+import { OfferService } from 'src/@core/domain/offerService';
 import { OfferTypeOrmRepository } from 'src/@core/infra/db/offer-typeorm.repository';
 import { OfferEntity } from 'src/@core/infra/db/offer.entity';
 import { DataSource } from 'typeorm';

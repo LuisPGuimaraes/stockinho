@@ -1,4 +1,4 @@
-import { Offer } from "./offer.entity";
+import { Offer } from "./offerEntity";
 import { OfferRepository } from "./offer.repository";
 
 export class OfferService {

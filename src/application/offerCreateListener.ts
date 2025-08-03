@@ -1,4 +1,4 @@
-import { OfferService } from "src/@core/domain/offer.service";
+import { OfferService } from "src/@core/domain/offerService";
 import { IWorkerListener } from "./IWorkerListener";
 import { Injectable } from "@nestjs/common";
 import { CreateOfferMessage } from "src/@core/messageTypes/createOfferMessage";

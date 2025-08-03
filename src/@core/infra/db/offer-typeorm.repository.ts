@@ -1,4 +1,4 @@
-import { Offer } from "src/@core/domain/offer.entity";
+import { Offer } from "src/@core/domain/offerEntity";
 import { OfferRepository } from "src/@core/domain/offer.repository";
 import { Repository } from "typeorm";
 import { OfferEntity } from "./offer.entity";
